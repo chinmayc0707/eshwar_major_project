@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmic Translation Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0c0e1d 0%, #1a0933 100%);
+            font-family: 'Exo 2', sans-serif;
+            overflow: hidden;
+            color: #e6f1ff;
+        }
+        
+        .portal-container {
+            position: relative;
+            width: 320px;
+            height: 320px;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 0 40px rgba(101, 45, 255, 0.4),
+                        0 0 80px rgba(101, 45, 255, 0.2),
+                        inset 0 0 20px rgba(255, 255, 255, 0.1);
+            background: rgba(15, 10, 40, 0.7);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(101, 45, 255, 0.3);
+        }
+        
+        .portal-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(101, 45, 255, 0.3) 0%, transparent 70%);
+            z-index: 5;
+        }
+        
+        .quantum-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 240px;
+            height: 240px;
+            border-radius: 50%;
+            border: 2px solid rgba(101, 45, 255, 0.3);
+            animation: spin 20s linear infinite;
+        }
+        
+        .quantum-ring::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 2px solid rgba(0, 247, 255, 0.3);
+            transform: rotate(60deg);
+        }
+        
+        .quantum-ring::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 45, 185, 0.3);
+            transform: rotate(120deg);
+        }
+        
+        .linguistic-particle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #00f7ff, #ff2db9);
+            box-shadow: 0 0 10px #00f7ff, 0 0 15px #ff2db9;
+            animation: particle-float 4s infinite ease-in-out;
+            z-index: 10;
+        }
+        
+        .particle-1 { top: 30%; left: 30%; animation-delay: 0s; }
+        .particle-2 { top: 70%; left: 20%; animation-delay: 0.5s; }
+        .particle-3 { top: 20%; left: 70%; animation-delay: 1s; }
+        .particle-4 { top: 80%; left: 75%; animation-delay: 1.5s; }
+        .particle-5 { top: 45%; left: 55%; animation-delay: 2s; }
+        
+        .hologram-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 18px;
+            font-weight: 600;
+            text-align: center;
+            z-index: 20;
+            text-shadow: 0 0 10px rgba(101, 45, 255, 0.8);
+            letter-spacing: 1px;
+        }
+        
+        .english-text {
+            top: 40%;
+            color: #00f7ff;
+            animation: text-pulse 3s infinite alternate;
+        }
+        
+        .kannada-text {
+            top: 60%;
+            color: #ff2db9;
+            animation: text-pulse 3s infinite alternate-reverse;
+            font-size: 22px;
+        }
+        
+        .alchemy-process {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(101, 45, 255, 0.1) 0%, transparent 70%);
+            z-index: 6;
+            animation: alchemy-pulse 5s infinite alternate;
+        }
+        
+        .alchemy-symbol {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(0deg);
+            font-size: 60px;
+            z-index: 7;
+            opacity: 0.7;
+            animation: spin-symbol 20s linear infinite;
+        }
+        
+        .frequency-lines {
+            position: absolute;
+            bottom: 50px;
+            left: 0;
+            width: 100%;
+            height: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 4px;
+            z-index: 15;
+            padding: 0 20px;
+        }
+        
+        .frequency-bar {
+            width: 4px;
+            height: 5px;
+            background: linear-gradient(to top, #00f7ff, #ff2db9);
+            border-radius: 2px 2px 0 0;
+            animation: frequency-pulse 1.5s infinite ease-in-out;
+            transform-origin: bottom;
+        }
+        
+        @keyframes frequency-pulse {
+            0%, 100% { 
+                height: 5px;
+                transform: scaleY(1);
+            }
+            50% { 
+                height: 30px;
+                transform: scaleY(1.2);
+            }
+        }
+        
+        .quantum-dots {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+        
+        .quantum-dot {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 5px rgba(255, 255, 255, 0.7);
+        }
+        
+        /* Animations */
+        @keyframes spin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+        
+        @keyframes particle-float {
+            0%, 100% { transform: translate(0, 0); }
+            25% { transform: translate(10px, -15px); }
+            50% { transform: translate(-5px, 10px); }
+            75% { transform: translate(-10px, -5px); }
+        }
+        
+        @keyframes text-pulse {
+            0% { opacity: 0.4; }
+            100% { opacity: 1; }
+        }
+        
+        @keyframes alchemy-pulse {
+            0% { box-shadow: 0 0 20px rgba(101, 45, 255, 0.3); }
+            100% { box-shadow: 0 0 50px rgba(101, 45, 255, 0.6), 
+                            0 0 80px rgba(0, 247, 255, 0.4); }
+        }
+        
+        @keyframes spin-symbol {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+        
+        @keyframes frequency-pulse {
+            0%, 100% { height: 10px; }
+            50% { height: 30px; }
+        }
+        
+        .language-bridge {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 180px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #00f7ff, #ff2db9, transparent);
+            z-index: 4;
+            animation: bridge-glow 3s infinite alternate;
+        }
+        
+        @keyframes bridge-glow {
+            0% { opacity: 0.3; }
+            100% { opacity: 1; box-shadow: 0 0 15px #00f7ff, 0 0 25px #ff2db9; }
+        }
+        
+        .micro-glyphs {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+        }
+        
+        .glyph {
+            position: absolute;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.15);
+            font-family: 'Times New Roman', serif;
+        }
+        
+        .progress-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 280px;
+            height: 280px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            border-top: 2px solid #00f7ff;
+            animation: progress-spin 3s linear infinite;
+            z-index: 3;
+        }
+        
+        @keyframes progress-spin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="portal-container">
+        <div class="quantum-dots" id="quantum-dots"></div>
+        <div class="micro-glyphs" id="micro-glyphs"></div>
+        
+        <div class="quantum-ring"></div>
+        <div class="progress-ring"></div>
+        
+        <div class="portal-center"></div>
+        <div class="alchemy-process"></div>
+        <div class="alchemy-symbol">✵</div>
+        
+        <div class="linguistic-particle particle-1"></div>
+        <div class="linguistic-particle particle-2"></div>
+        <div class="linguistic-particle particle-3"></div>
+        <div class="linguistic-particle particle-4"></div>
+        <div class="linguistic-particle particle-5"></div>
+        
+        <div class="hologram-text english-text">Hello World</div>
+        <div class="hologram-text kannada-text">ಹಲೋ ವರ್ಲ್ಡ್</div>
+        
+        <div class="language-bridge"></div>
+        
+        <div class="frequency-lines">
+            <div class="frequency-bar" style="animation-delay: 0s"></div>
+            <div class="frequency-bar" style="animation-delay: 0.1s"></div>
+            <div class="frequency-bar" style="animation-delay: 0.2s"></div>
+            <div class="frequency-bar" style="animation-delay: 0.3s"></div>
+            <div class="frequency-bar" style="animation-delay: 0.4s"></div>
+            <div class="frequency-bar" style="animation-delay: 0.5s"></div>
+            <div class="frequency-bar" style="animation-delay: 0.6s"></div>
+            <div class="frequency-bar" style="animation-delay: 0.7s"></div>
+            <div class="frequency-bar" style="animation-delay: 0.8s"></div>
+            <div class="frequency-bar" style="animation-delay: 0.9s"></div>
+        </div>
+        
+    </div>
+
+    <script>
+        // Create quantum background dots
+        const quantumDots = document.getElementById('quantum-dots');
+        for (let i = 0; i < 150; i++) {
+            const dot = document.createElement('div');
+            dot.classList.add('quantum-dot');
+            dot.style.left = `${Math.random() * 100}%`;
+            dot.style.top = `${Math.random() * 100}%`;
+            dot.style.animation = `particle-float ${5 + Math.random() * 10}s infinite ease-in-out`;
+            dot.style.animationDelay = `${Math.random() * 5}s`;
+            quantumDots.appendChild(dot);
+        }
+        
+        // Create micro-glyphs background
+        const microGlyphs = document.getElementById('micro-glyphs');
+        const glyphs = ['A', 'B', 'C', 'a', 'b', 'c', 'α', 'β', 'γ', '∞', '∫', '∑', '∅', '∏', '∂', 'ಕ', 'ಖ', 'ಗ', 'ಘ', 'ಙ', 'ಚ', 'ಛ', 'ಜ'];
+        for (let i = 0; i < 80; i++) {
+            const glyph = document.createElement('div');
+            glyph.classList.add('glyph');
+            glyph.textContent = glyphs[Math.floor(Math.random() * glyphs.length)];
+            glyph.style.left = `${Math.random() * 100}%`;
+            glyph.style.top = `${Math.random() * 100}%`;
+            glyph.style.transform = `rotate(${Math.random() * 360}deg)`;
+            glyph.style.opacity = Math.random() * 0.3;
+            microGlyphs.appendChild(glyph);
+        }
+        
+        // Animate text transformation
+        const englishText = document.querySelector('.english-text');
+        const kannadaText = document.querySelector('.kannada-text');
+        const words = [
+            { en: "Hello World", kn: "ಹಲೋ ವರ್ಲ್ಡ್" },
+            { en: "Good Morning", kn: "ಶುಭೋದಯ" },
+            { en: "How are you?", kn: "ನೀವು ಹೇಗಿದ್ದೀರಿ?" },
+            { en: "Thank you", kn: "ಧನ್ಯವಾದ" },
+            { en: "Beautiful", kn: "ಸುಂದರವಾದ" }
+        ];
+        
+        let currentIndex = 0;
+        
+        function transformText() {
+            englishText.style.opacity = 0;
+            kannadaText.style.opacity = 0;
+            
+            setTimeout(() => {
+                currentIndex = (currentIndex + 1) % words.length;
+                englishText.textContent = words[currentIndex].en;
+                kannadaText.textContent = words[currentIndex].kn;
+                
+                englishText.style.opacity = 1;
+                kannadaText.style.opacity = 1;
+            }, 1000);
+        }
+        
+        setInterval(transformText, 3000);
+
+        // Animate frequency bars
+        function animateBars() {
+            const bars = document.querySelectorAll('.frequency-bar');
+            bars.forEach((bar, i) => {
+                const intensity = 0.5 + Math.sin(Date.now()/200 + i*0.3) * 0.5;
+                bar.style.height = `${5 + intensity * 25}px`;
+                bar.style.opacity = 0.3 + intensity * 0.7;
+            });
+            requestAnimationFrame(animateBars);
+        }
+        animateBars();
+    </script>
+</body>
+</html>

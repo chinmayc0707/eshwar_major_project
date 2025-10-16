@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Kanglish Summarizer — Results</title>
+  
+  <!-- Google fonts (including Kannada) -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Noto+Sans+Kannada:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='result-style.css') }}">
+</head>
+<body>
+  <script>
+    // Error banner helper (DATA will be defined later)
+    function showErrorBanner(msg) {
+      const banner = document.createElement('div');
+      banner.id = 'error-banner';
+      banner.textContent = msg;
+      document.body.prepend(banner);
+    }
+  </script>
+  
+  <div class="container">
+    <header>
+      <div>
+        <h1>Processing Results</h1>
+        <p class="lead">Playable media • Full transcription • Summaries in English, Kannada & Kanglish</p>
+      </div>
+      <div class="meta-row">
+        <span class="badge" id="durationBadge">Duration — --:--</span>
+        <button class="btn" id="downloadAllBtn">Download All (JSON)</button>
+      </div>
+    </header>
+
+    <!-- Media card -->
+    <section class="card">
+      <div class="media-section">
+        <div class="media-wrap">
+          <div class="media-player" id="mediaPlayerWrap" aria-label="media player">
+            <!-- audio or video inserted by JS -->
+            <div id="mediaContainer"></div>
+          </div>
+
+          <div class="media-meta">
+            <div>
+              <div class="media-header">
+                <strong id="mediaLabel">Uploaded file</strong>
+                <span class="badge" id="mediaTypeBadge">Type</span>
+              </div>
+              <div class="media-name" id="mediaName">filename.mp4</div>
+            </div>
+
+            <div class="playback-controls">
+              <div class="controls-label">Playback controls</div>
+              <div class="controls-buttons">
+                <button class="btn" id="btnPlay">Play</button>
+                <button class="btn" id="btnPause">Pause</button>
+                <button class="btn" id="btnSeekStart">Seek 0s</button>
+                <button class="btn" id="btnMute">Mute</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="meta-row transcript-actions">
+          <small class="pro-tip">Pro tip: you can copy/paste the transcription or download everything as JSON.</small>
+          <div class="action-buttons">
+            <button class="btn" id="copyTranscriptBtn">Copy transcription</button>
+            <button class="btn primary" id="downloadTranscriptBtn">Download transcription (TXT)</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- transcription + summaries -->
+    <section class="content-layout">
+      <!-- Transcription -->
+      <div class="card">
+        <div class="transcription-header">
+          <div>
+            <strong>Full Transcription (English)</strong>
+            <div class="transcription-subtitle">Auto-generated from speech-to-text</div>
+          </div>
+          <div class="transcription-controls">
+            <button class="btn" id="findBtn">Find</button>
+            <button class="btn" id="clearHighlightsBtn">Clear highlights</button>
+          </div>
+        </div>
+
+        <div class="scroll">
+          <pre id="transcriptionBlock" tabindex="0"></pre>
+        </div>
+      </div>
+
+      <!-- Summaries -->
+      <div class="card summaries-container">
+        <div>
+          <strong>Summaries</strong>
+          <div class="summaries-subtitle">All languages shown together with TTS & copy options</div>
+        </div>
+
+        <div class="summaries-grid">
+          <!-- Kannada Summary -->
+          <div class="summary-card">
+            <div class="summary-title">
+              <div>
+                <strong>ಕನ್ನಡ ಸಾರಾಂಶ</strong>
+                <div class="summary-subtitle">Generated summary in Kannada</div>
+              </div>
+              <div class="controls">
+                <button class="btn" data-action="copy" data-target="kannada">Copy</button>
+                <button class="btn" data-action="tts" data-target="kannada">Play TTS</button>
+              </div>
+            </div>
+            <div class="scroll summary-scroll">
+              <pre id="summary-kannada" class="kannada"></pre>
+            </div>
+          </div>
+
+          <!-- Kanglish Summary -->
+          <div class="summary-card">
+            <div class="summary-title">
+              <div>
+                <strong>Kanglish Summary</strong>
+                <div class="summary-subtitle">Roman Kannada + English blend (Kanglish)</div>
+              </div>
+              <div class="controls">
+                <button class="btn" data-action="copy" data-target="kanglish">Copy</button>
+                <button class="btn" data-action="tts" data-target="kanglish">Play TTS</button>
+              </div>
+            </div>
+            <div class="scroll summary-scroll">
+              <pre id="summary-kanglish"></pre>
+            </div>
+          </div>
+
+          <!-- English Summary -->
+          <div class="summary-card">
+            <div class="summary-title">
+              <div>
+                <strong>English Summary</strong>
+                <div class="summary-subtitle">Generated summary in English</div>
+              </div>
+              <div class="controls">
+                <button class="btn" data-action="copy" data-target="english">Copy</button>
+                <button class="btn" data-action="tts" data-target="english">Play TTS</button>
+              </div>
+            </div>
+            <div class="scroll summary-scroll">
+              <pre id="summary-english"></pre>
+            </div>
+          </div>
+          
+          <div class="download-summaries">
+            <button class="btn" id="downloadSummariesBtn">Download summaries (TXT)</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="result-footer">
+      <div class="footer-brand">Kanglish Summarizer • Results viewer</div>
+      <small class="footer-credits">Made with ♥ — edit DATA in the script to populate</small>
+    </footer>
+  </div>
+
+  <!-- Embed data as JSON to avoid template braces in JS -->
+  <script id="data-json" type="application/json">{{ data|tojson|safe }}</script>
+
+  <script>
+    // Receive data from the embedded JSON script
+    const DATA = (() => {
+      try {
+        const el = document.getElementById('data-json');
+        return el && el.textContent ? JSON.parse(el.textContent) : {};
+      } catch(e){
+        return {};
+      }
+    })();
+
+    // Helpers & element refs
+    const mediaContainer = document.getElementById('mediaContainer');
+    const mediaTypeBadge = document.getElementById('mediaTypeBadge');
+    const mediaLabel = document.getElementById('mediaLabel');
+    const mediaName = document.getElementById('mediaName');
+    const durationBadge = document.getElementById('durationBadge');
+    const transcriptionBlock = document.getElementById('transcriptionBlock');
+
+    // Enhanced media format support including MKV
+    // Enhanced media format support with comprehensive format list
+const supportedVideoFormats = {
+  '.mp4': 'video/mp4',
+  '.webm': 'video/webm', 
+  '.mov': 'video/quicktime',
+  '.avi': 'video/x-msvideo',
+  '.mkv': 'video/x-matroska',
+  '.flv': 'video/x-flv',
+  '.wmv': 'video/x-ms-wmv',
+  '.m4v': 'video/x-m4v',
+  '.3gp': 'video/3gpp',
+  '.ogv': 'video/ogg',
+  '.asf': 'video/x-ms-asf',
+  '.ts': 'video/mp2t',
+  '.rm': 'application/vnd.rn-realmedia',
+  '.rmvb': 'application/vnd.rn-realmedia-vbr'
+};
+
+const supportedAudioFormats = {
+  '.mp3': 'audio/mpeg',
+  '.wav': 'audio/wav',
+  '.ogg': 'audio/ogg',
+  '.aac': 'audio/aac',
+  '.flac': 'audio/flac',
+  '.m4a': 'audio/mp4',
+  '.wma': 'audio/x-ms-wma',
+  '.opus': 'audio/opus',
+  '.mka': 'audio/x-matroska'
+};
+
+// Enhanced media creation function
+function createMedia(){
+ mediaContainer.innerHTML = '';
+  
+  // If mediaType is null, hide media player completely
+  if (!DATA.mediaType || DATA.mediaType === null) {
+    const hiddenDiv = document.createElement('div');
+    hiddenDiv.className = 'media-hidden';
+    hiddenDiv.innerHTML = `
+      <div class="hidden-media-message">
+        <i class="fas fa-eye-slash" style="font-size: 2rem; color: var(--muted); margin-bottom: 8px;"></i>
+        <p>Media playback hidden</p>
+        <small>Transcription and summaries available below</small>
+      </div>
+    `;
+    mediaContainer.appendChild(hiddenDiv);
+    return;
+  }
+
+  const fileName = DATA.mediaName || '';
+  const fileExt = fileName.substring(fileName.lastIndexOf('.')).toLowerCase();
+  
+  // Determine if it's video or audio
+  const isVideo = supportedVideoFormats.hasOwnProperty(fileExt) || DATA.mediaType === 'video';
+  const isAudio = supportedAudioFormats.hasOwnProperty(fileExt) || DATA.mediaType === 'audio';
+
+  if(isVideo){
+    createVideoPlayer(fileExt);
+  } else if(isAudio){
+    createAudioPlayer(fileExt);
+  } else {
+    createUnsupportedMedia(fileExt);
+  }
+}
+
+function createVideoPlayer(fileExt) {
+  mediaEl = document.createElement('video');
+  mediaEl.controls = true;
+  mediaEl.className = 'video-player';
+  mediaEl.preload = 'metadata';
+  mediaEl.crossOrigin = 'anonymous';
+  
+  // Add multiple source elements for better compatibility
+  const sources = getVideoSources(DATA.mediaSrc, fileExt);
+  sources.forEach(source => {
+    const sourceEl = document.createElement('source');
+    sourceEl.src = source.src;
+    sourceEl.type = source.type;
+    mediaEl.appendChild(sourceEl);
+  });
+
+  // Fallback message
+  const fallback = document.createElement('p');
+  fallback.className = 'media-fallback';
+  fallback.innerHTML = `
+    Your browser doesn't support this video format.<br>
+    <a href="${DATA.mediaSrc}" class="btn" download>Download Video File</a>
+  `;
+  mediaEl.appendChild(fallback);
+
+  setupMediaEventListeners(mediaEl, fileExt);
+  mediaContainer.appendChild(mediaEl);
+}
+
+function createAudioPlayer(fileExt) {
+  mediaEl = document.createElement('audio');
+  mediaEl.controls = true;
+  mediaEl.className = 'audio-player';
+  mediaEl.preload = 'metadata';
+  mediaEl.crossOrigin = 'anonymous';
+
+  // Add multiple source elements for better compatibility
+  const sources = getAudioSources(DATA.mediaSrc, fileExt);
+  sources.forEach(source => {
+    const sourceEl = document.createElement('source');
+    sourceEl.src = source.src;
+    sourceEl.type = source.type;
+    mediaEl.appendChild(sourceEl);
+  });
+
+  // Fallback message
+  const fallback = document.createElement('p');
+  fallback.className = 'media-fallback';
+  fallback.innerHTML = `
+    Your browser doesn't support this audio format.<br>
+    <a href="${DATA.mediaSrc}" class="btn" download>Download Audio File</a>
+  `;
+  mediaEl.appendChild(fallback);
+
+  setupMediaEventListeners(mediaEl, fileExt);
+  mediaContainer.appendChild(mediaEl);
+}
+
+function createUnsupportedMedia(fileExt) {
+  const unsupportedDiv = document.createElement('div');
+  unsupportedDiv.className = 'media-unsupported';
+  unsupportedDiv.innerHTML = `
+    <div class="unsupported-content">
+      <i class="fas fa-exclamation-triangle" style="font-size: 2rem; color: #f59e0b; margin-bottom: 12px;"></i>
+      <h4>Unsupported Format</h4>
+      <p>File format <code>${fileExt.toUpperCase()}</code> is not supported for direct playback.</p>
+      <div class="unsupported-actions">
+        <a href="${DATA.mediaSrc}" class="btn primary" download>
+          <i class="fas fa-download"></i> Download File
+        </a>
+        <button class="btn" onclick="showFormatInfo('${fileExt}')">
+          <i class="fas fa-info-circle"></i> Format Info
+        </button>
+      </div>
+    </div>
+  `;
+  mediaContainer.appendChild(unsupportedDiv);
+}
+
+function getVideoSources(src, fileExt) {
+  const sources = [{ src: src, type: supportedVideoFormats[fileExt] || 'video/mp4' }];
+  
+  // Add additional sources for better compatibility
+  if(fileExt === '.mkv') {
+    sources.push(
+      { src: src, type: 'video/x-matroska' },
+      { src: src, type: 'video/mkv' },
+      { src: src, type: 'video/mp4' } // Fallback
+    );
+  }
+  
+  return sources;
+}
+
+function getAudioSources(src, fileExt) {
+  const sources = [{ src: src, type: supportedAudioFormats[fileExt] || 'audio/mpeg' }];
+  
+  // Add additional sources for better compatibility  
+  if(fileExt === '.flac') {
+    sources.push(
+      { src: src, type: 'audio/flac' },
+      { src: src, type: 'audio/x-flac' }
+    );
+  }
+  
+  return sources;
+}
+
+function setupMediaEventListeners(mediaElement, fileExt) {
+  // Loading states
+  mediaElement.addEventListener('loadstart', () => {
+    mediaContainer.classList.add('loading');
+    showToast(`Loading ${fileExt.toUpperCase()} file...`);
+  });
+  
+  mediaElement.addEventListener('canplay', () => {
+    mediaContainer.classList.remove('loading');
+    showToast(`${fileExt.toUpperCase()} file ready to play ✅`);
+  });
+
+  // Update duration
+  mediaElement.addEventListener('loadedmetadata', () => {
+    const d = formatDuration(mediaElement.duration);
+    durationBadge.textContent = 'Duration — ' + d;
+  });
+
+  // Enhanced error handling
+  mediaElement.addEventListener('error', (e) => {
+    console.error('Media loading error:', e);
+    mediaContainer.classList.remove('loading');
+    
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'media-error';
+    errorDiv.innerHTML = `
+      <i class="fas fa-exclamation-circle" style="font-size: 1.5rem; color: #ef4444; margin-bottom: 8px;"></i>
+      <h4>Playback Error</h4>
+      <p>Unable to load ${fileExt.toUpperCase()} file</p>
+      <div class="error-details">
+        <small>Error Code: ${mediaElement.error?.code || 'Unknown'}</small><br>
+        <small>Message: ${mediaElement.error?.message || 'Format may not be supported by your browser'}</small>
+      </div>
+      <div class="error-actions">
+        <a href="${DATA.mediaSrc}" target="_blank" class="btn primary">
+          <i class="fas fa-download"></i> Download File
+        </a>
+        <button class="btn" onclick="retryMediaLoad()">
+          <i class="fas fa-redo"></i> Retry
+        </button>
+      </div>
+    `;
+    
+    // Replace the media element with error message
+    mediaContainer.innerHTML = '';
+    mediaContainer.appendChild(errorDiv);
+    
+    showToast(`Failed to load ${fileExt.toUpperCase()} file`, 'error');
+  });
+
+  // Progress indication
+  mediaElement.addEventListener('progress', () => {
+    if(mediaElement.buffered.length > 0) {
+      const buffered = mediaElement.buffered.end(mediaElement.buffered.length - 1);
+      const duration = mediaElement.duration;
+      if(duration > 0) {
+        const percent = Math.round((buffered / duration) * 100);
+        console.log(`Buffered: ${percent}%`);
+      }
+    }
+  });
+}
+
+function retryMediaLoad() {
+  showToast('Retrying media load...');
+  createMedia(); // Recreate the media element
+}
+
+function showFormatInfo(fileExt) {
+  const formatInfo = {
+    '.mkv': 'Matroska Video - Open source container format',
+    '.flac': 'Free Lossless Audio Codec - High quality audio',
+    '.opus': 'Opus Audio - Modern low-latency audio codec',
+    '.webm': 'WebM - Open web video format',
+    '.ogg': 'Ogg Vorbis - Open source audio format'
+  };
+
+  const info = formatInfo[fileExt] || `${fileExt.toUpperCase()} format`;
+  alert(`Format Information:\n${info}\n\nFor best compatibility, consider converting to MP4 (video) or MP3 (audio).`);
+}
+
+    function formatDuration(sec){
+      if (!sec || isNaN(sec)) return DATA.duration || '--:--';
+      const s = Math.floor(sec % 60).toString().padStart(2,'0');
+      const m = Math.floor(sec/60 % 60).toString().padStart(2,'0');
+      const h = Math.floor(sec/3600);
+      return h>0 ? `${h}:${m}:${s}` : `${m}:${s}`;
+    }
+
+    // populate meta & transcription
+    function populate(){
+      const type = (DATA.mediaType || '').toUpperCase();
+      mediaTypeBadge.textContent = type || 'MEDIA';
+      
+      // Enhanced media labeling
+      if(DATA.mediaType === 'text'){
+        mediaLabel.textContent = 'Text Input';
+        mediaTypeBadge.textContent = 'TEXT';
+      } else if(DATA.mediaType === 'video'){
+        mediaLabel.textContent = 'Uploaded Video';
+      } else {
+        mediaLabel.textContent = 'Uploaded Audio';
+      }
+      
+      mediaName.textContent = DATA.mediaName || 'uploaded_file';
+      transcriptionBlock.textContent = DATA.transcription || 'No transcription available';
+      
+      // Populate summaries with fallbacks
+      document.getElementById('summary-english').textContent = 
+        (DATA.summaries && DATA.summaries.english) || 'No English summary available';
+      document.getElementById('summary-kannada').textContent = 
+        (DATA.summaries && DATA.summaries.kannada) || 'ಕನ್ನಡ ಸಾರಾಂಶ ಲಭ್ಯವಿಲ್ಲ';
+      document.getElementById('summary-kanglish').textContent = 
+        (DATA.summaries && DATA.summaries.kanglish) || 'Kanglish summary illa';
+    }
+
+    // Copy & download functionality
+    document.getElementById('copyTranscriptBtn').addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(DATA.transcription);
+        showToast('Transcription copied to clipboard ✅');
+      } catch(e){
+        showToast('Copy failed. Select and copy manually.', 'error');
+      }
+    });
+
+    document.getElementById('downloadTranscriptBtn').addEventListener('click', () => {
+      downloadTextFile(DATA.transcription, (DATA.mediaName || 'transcript') + '.txt');
+    });
+
+    document.getElementById('downloadSummariesBtn').addEventListener('click', () => {
+      const txt = `English Summary:\n${DATA.summaries?.english || ''}\n\nKannada Summary:\n${DATA.summaries?.kannada || ''}\n\nKanglish Summary:\n${DATA.summaries?.kanglish || ''}`;
+      downloadTextFile(txt, 'summaries.txt');
+    });
+
+    document.getElementById('downloadAllBtn').addEventListener('click', () => {
+      const payload = {
+        mediaName: DATA.mediaName,
+        mediaType: DATA.mediaType,
+        transcription: DATA.transcription,
+        summaries: DATA.summaries,
+        duration: DATA.duration,
+        generatedAt: new Date().toISOString()
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; 
+      a.download = (DATA.mediaName || 'results') + '.json';
+      a.click();
+      setTimeout(()=>URL.revokeObjectURL(url), 3000);
+    });
+
+    function downloadTextFile(text, filename='file.txt'){
+      const blob = new Blob([text], {type:'text/plain'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; 
+      a.download = filename;
+      a.click();
+      setTimeout(()=>URL.revokeObjectURL(url),3000);
+    }
+
+    // Toast notification system
+    function showToast(message, type = 'success') {
+      const toast = document.createElement('div');
+      toast.className = `toast toast-${type}`;
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      
+      setTimeout(() => {
+        toast.classList.add('toast-show');
+      }, 100);
+      
+      setTimeout(() => {
+        toast.classList.remove('toast-show');
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
+    // Summary copy & tts controls (delegated)
+    document.querySelectorAll('[data-action]').forEach(btn=>{
+      btn.addEventListener('click', (e)=>{
+        const action = btn.getAttribute('data-action');
+        const target = btn.getAttribute('data-target');
+        if(action === 'copy'){
+          const txt = DATA.summaries?.[target] || '';
+          navigator.clipboard.writeText(txt)
+            .then(()=>showToast('Copied ✅'))
+            .catch(()=>showToast('Copy failed', 'error'));
+        } else if(action === 'tts'){
+          playTTS(target);
+        }
+      });
+    });
+
+    // Enhanced TTS using Web Speech API
+    async function playTTS(langKey){
+      if(!('speechSynthesis' in window)){
+        showToast('TTS not supported in this browser', 'error');
+        return;
+      }
+
+      const synth = window.speechSynthesis;
+      synth.cancel();
+
+      let text = DATA.summaries?.[langKey] || '';
+      if(!text) {
+        showToast('No text available for TTS', 'error');
+        return;
+      }
+
+      let utter = new SpeechSynthesisUtterance(text);
+
+      // Load voices if not already loaded
+      let voices = synth.getVoices();
+      if(voices.length === 0){
+        await new Promise(resolve => {
+          synth.onvoiceschanged = () => {
+            voices = synth.getVoices();
+            resolve();
+          };
+        });
+      }
+
+      // Choose voice & language
+      if(langKey === 'kannada'){
+        utter.lang = 'kn-IN';
+        const knVoice = voices.find(v => v.lang && v.lang.startsWith('kn'));
+        if(knVoice) utter.voice = knVoice;
+      } else if(langKey === 'kanglish'){
+        utter.lang = 'en-IN'; // Indian English for better Kanglish pronunciation
+        const inVoice = voices.find(v => v.lang && v.lang.includes('IN'));
+        if(inVoice) utter.voice = inVoice;
+      } else {
+        utter.lang = 'en-US';
+        const enVoice = voices.find(v => v.lang && v.lang.startsWith('en'));
+        if(enVoice) utter.voice = enVoice;
+      }
+
+      utter.rate = 0.9;
+      utter.pitch = 1.0;
+      utter.volume = 0.8;
+
+      utter.onstart = () => showToast('🔊 Playing TTS...');
+      utter.onend = () => showToast('TTS finished');
+      utter.onerror = () => showToast('TTS error occurred', 'error');
+
+      synth.speak(utter);
+    }
+
+    // Enhanced playback helpers
+    document.getElementById('btnPlay').addEventListener('click', ()=>{
+      if(mediaEl) {
+        mediaEl.play().catch(e => showToast('Playback failed', 'error'));
+      }
+    });
+    document.getElementById('btnPause').addEventListener('click', ()=>mediaEl && mediaEl.pause());
+    document.getElementById('btnSeekStart').addEventListener('click', ()=>{ 
+      if(mediaEl) mediaEl.currentTime = 0; 
+    });
+    document.getElementById('btnMute').addEventListener('click', ()=>{ 
+      if(mediaEl) {
+        mediaEl.muted = !mediaEl.muted;
+        document.getElementById('btnMute').textContent = mediaEl.muted ? 'Unmute' : 'Mute';
+      }
+    });
+
+    // Enhanced find functionality
+    document.getElementById('findBtn').addEventListener('click', ()=>{
+      const q = prompt('Find text in transcription (case-insensitive):');
+      if(!q) return;
+      const txt = DATA.transcription || '';
+      const regex = new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+      const matches = txt.match(regex);
+      
+      if(!matches){ 
+        showToast('Text not found', 'error'); 
+        return; 
+      }
+      
+      const highlighted = txt.replace(regex, match => 
+        `<mark class="highlight">${escapeHtml(match)}</mark>`
+      );
+      transcriptionBlock.innerHTML = highlighted;
+      
+      const firstMark = transcriptionBlock.querySelector('mark');
+      if(firstMark) {
+        firstMark.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      
+      showToast(`Found ${matches.length} match${matches.length > 1 ? 'es' : ''}`);
+    });
+
+    document.getElementById('clearHighlightsBtn').addEventListener('click', ()=>{
+      transcriptionBlock.textContent = DATA.transcription || '';
+      showToast('Highlights cleared');
+    });
+
+    // Enhanced HTML escape function
+    function escapeHtml(text){
+      const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+      };
+      return text.replace(/[&<>"']/g, m => map[m]);
+    }
+
+    // Initialize everything
+    createMedia();
+    populate();
+    
+    // Show error banner if transcription failed
+    if (DATA.transcription && typeof DATA.transcription === 'string' && DATA.transcription.startsWith('ERROR:')) {
+      showErrorBanner('Transcription Error: ' + DATA.transcription);
+    }
+
+    // Expose for debugging
+    window.KS_RESULTS = {DATA, mediaEl, showToast};
+    
+    console.log('Kanglish Summarizer Results loaded:', DATA);
+  </script>
+</body>
+</html>

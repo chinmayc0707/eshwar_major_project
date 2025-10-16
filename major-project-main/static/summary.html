@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Processing Your Text</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 900px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            position: relative;
+            min-height: 500px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2.2em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            color: #7f8c8d;
+            font-size: 1.1em;
+        }
+
+
+
+        .text-container {
+            line-height: 2;
+            color: #2c3e50;
+            position: relative;
+            min-height: 300px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1em;
+        }
+
+        .paragraph {
+            width: 100%;
+            max-width: 900px;
+            padding: 30px;
+            border-radius: 15px;
+            transition: all 0.8s ease;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateX(50px);
+            pointer-events: none;
+        }
+
+        .paragraph.active {
+            opacity: 1;
+            transform: translateX(0);
+            pointer-events: auto;
+        }
+
+        .paragraph.processing {
+            background: rgba(255, 206, 84, 0.2);
+            border: 2px solid #f39c12;
+            transform: translateX(0) scale(1.02);
+        }
+
+        .paragraph.completed {
+            opacity: 0;
+            transform: translateX(-50px);
+            transition: all 0.5s ease;
+        }
+
+        .paragraph-1 { border-left: 4px solid #ff6b6b; }
+        .paragraph-2 { border-left: 4px solid #4ecdc4; }
+        .paragraph-3 { border-left: 4px solid #45b7d1; }
+        .paragraph-4 { border-left: 4px solid #96ceb4; }
+
+        .sentence {
+            display: inline-block;
+            margin: 0 4px 4px 0;
+            transition: all 1.2s ease;
+            position: relative;
+        }
+
+        .sentence.key-text {
+            background: linear-gradient(120deg, #a8e6cf 0%, #ffd93d 100%);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .sentence.fade-out {
+            opacity: 0;
+            transform: scale(0.8);
+            filter: blur(1px);
+        }
+
+        .sentence.moving {
+            position: absolute;
+            z-index: 100;
+            background: linear-gradient(120deg, #667eea, #764ba2) !important;
+            color: white !important;
+            transform: scale(0.9);
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        @keyframes moveToSummary {
+            0% {
+                transform: scale(0.9);
+            }
+            50% {
+                transform: scale(1.1) translateY(-20px);
+                box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            }
+            100% {
+                transform: scale(0.85) translateY(0);
+            }
+        }
+
+
+
+        .processing-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 10px 0;
+            color: #7f8c8d;
+            font-size: 0.95em;
+        }
+
+        .current-step {
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .dots {
+            margin-left: 15px;
+        }
+
+        .dot {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #667eea;
+            margin: 0 3px;
+            animation: wave 1.4s ease-in-out infinite both;
+        }
+
+        .dot:nth-child(1) { animation-delay: -0.32s; }
+        .dot:nth-child(2) { animation-delay: -0.16s; }
+        .dot:nth-child(3) { animation-delay: 0s; }
+
+        @keyframes wave {
+            0%, 60%, 100% {
+                transform: initial;
+            }
+            30% {
+                transform: translateY(-8px);
+            }
+        }
+
+        .stats {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(44, 62, 80, 0.9);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-family: 'Courier New', monospace;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 25px;
+                margin: 20px;
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .sentence {
+                margin: 0 2px 4px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Processing Content</h1>
+            <p>Extracting and condensing key information</p>
+        </div>
+
+        <div class="text-container">
+            <div class="paragraph paragraph-1">
+    <span class="sentence key">Summarization</span>
+    <span class="sentence">is the process of reducing a large amount of</span>
+    <span class="sentence key">text</span>
+    <span class="sentence">into a shorter, concise version while retaining the most</span>
+    <span class="sentence key">important information</span>
+    <span class="sentence">. It can be</span>
+    <span class="sentence key">extractive</span>
+    <span class="sentence">, where key sentences are directly picked from the original content, or</span>
+    <span class="sentence key">abstractive</span>
+    <span class="sentence">, where new sentences are generated to convey the main idea. This process is widely used in</span>
+    <span class="sentence key">news aggregation</span>
+    <span class="sentence">,</span>
+    <span class="sentence key">research papers</span>
+    <span class="sentence">, and</span>
+    <span class="sentence key">content curation</span>
+    <span class="sentence">to save time and effort.</span>
+</div>
+
+<div class="paragraph paragraph-2">
+    <span class="sentence key">Natural Language Processing (NLP)</span>
+    <span class="sentence">is a branch of</span>
+    <span class="sentence key">artificial intelligence</span>
+    <span class="sentence">that enables machines to understand, interpret, and generate</span>
+    <span class="sentence key">human language</span>
+    <span class="sentence">. It combines concepts from</span>
+    <span class="sentence key">linguistics</span>
+    <span class="sentence">,</span>
+    <span class="sentence key">computer science</span>
+    <span class="sentence">, and</span>
+    <span class="sentence key">machine learning</span>
+    <span class="sentence">to process</span>
+    <span class="sentence key">text</span>
+    <span class="sentence">and</span>
+    <span class="sentence key">speech</span>
+    <span class="sentence">. Applications of NLP include</span>
+    <span class="sentence key">chatbots</span>
+    <span class="sentence">,</span>
+    <span class="sentence key">translation systems</span>
+    <span class="sentence">,</span>
+    <span class="sentence key">sentiment analysis</span>
+    <span class="sentence">, and</span>
+    <span class="sentence key">summarization tools</span>
+    <span class="sentence">. </span>
+</div>
+
+<div class="paragraph paragraph-3">
+    <span class="sentence">In</span>
+    <span class="sentence key">NLP</span>
+    <span class="sentence">, summarization plays a key role in managing</span>
+    <span class="sentence key">information overload</span>
+    <span class="sentence">by condensing long texts into</span>
+    <span class="sentence key">brief, readable summaries</span>
+    <span class="sentence">. It is essential for</span>
+    <span class="sentence key">search engines</span>
+    <span class="sentence">,</span>
+    <span class="sentence key">voice assistants</span>
+    <span class="sentence">, and</span>
+    <span class="sentence key">document analysis</span>
+    <span class="sentence">tools. Businesses use summarization for</span>
+    <span class="sentence key">customer reviews</span>
+    <span class="sentence">,</span>
+    <span class="sentence key">social media monitoring</span>
+    <span class="sentence">, and</span>
+    <span class="sentence key">meeting transcription</span>
+    <span class="sentence">. With the rise of</span>
+    <span class="sentence key">big data</span>
+    <span class="sentence">, automated summarization helps in faster</span>
+    <span class="sentence key">decision-making</span>
+    <span class="sentence">and</span>
+    <span class="sentence key">insight extraction</span>
+    <span class="sentence">.</span>
+</div>
+
+<div class="paragraph paragraph-4">
+    <span class="sentence">The future of</span>
+    <span class="sentence key">summarization</span>
+    <span class="sentence">and</span>
+    <span class="sentence key">NLP</span>
+    <span class="sentence">lies in more</span>
+    <span class="sentence key">context-aware</span>
+    <span class="sentence">and</span>
+    <span class="sentence key">personalized</span>
+    <span class="sentence">systems. Advancements in</span>
+    <span class="sentence key">deep learning</span>
+    <span class="sentence">and</span>
+    <span class="sentence key">transformer-based models</span>
+    <span class="sentence">like</span>
+    <span class="sentence key">BERT</span>
+    <span class="sentence">and</span>
+    <span class="sentence key">GPT</span>
+    <span class="sentence">are improving the quality of</span>
+    <span class="sentence key">abstractive summaries</span>
+    <span class="sentence">. Multilingual summarization will become more common, breaking</span>
+    <span class="sentence key">language barriers</span>
+    <span class="sentence">in global communication.</span>
+</div>
+
+        </div>
+
+        <div class="processing-indicator">
+            <span>Processing: <span class="current-step" id="currentStep"></span></span>
+            <div class="dots">
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let currentParagraph = 0;
+        const paragraphs = document.querySelectorAll('.paragraph');
+        const currentStepElement = document.getElementById('currentStep');
+
+        const stepNames = [];
+
+        function resetAnimation() {
+            currentParagraph = 0;
+            
+            paragraphs.forEach((paragraph, index) => {
+                paragraph.classList.remove('active', 'processing', 'completed');
+                const sentences = paragraph.querySelectorAll('.sentence');
+                sentences.forEach(sentence => {
+                    sentence.classList.remove('key-text', 'fade-out', 'moving');
+                    sentence.style.position = 'relative';
+                    sentence.style.transform = '';
+                });
+            });
+        }
+
+        function processParagraph(paragraphIndex) {
+            const paragraph = paragraphs[paragraphIndex];
+            const sentences = paragraph.querySelectorAll('.sentence');
+            
+            // Show paragraph
+            paragraph.classList.add('active');
+            currentStepElement.textContent = stepNames[paragraphIndex];
+            
+            setTimeout(() => {
+                // Start processing
+                paragraph.classList.add('processing');
+                
+                // Highlight key sentences
+                sentences.forEach(sentence => {
+                    if (sentence.classList.contains('key')) {
+                        sentence.classList.add('key-text');
+                    }
+                });
+                
+                setTimeout(() => {
+                    // Fade non-key sentences
+                    sentences.forEach(sentence => {
+                        if (!sentence.classList.contains('key')) {
+                            sentence.classList.add('fade-out');
+                        }
+                    });
+                    
+                    setTimeout(() => {
+                        // Mark paragraph as completed and move to next
+                        paragraph.classList.remove('processing');
+                        paragraph.classList.add('completed');
+                        
+                        // Move to next paragraph
+                        currentParagraph++;
+                        
+                        if (currentParagraph < paragraphs.length) {
+                            setTimeout(() => {
+                                processParagraph(currentParagraph);
+                            }, 800);
+                        } else {
+                            // Animation complete
+                            currentStepElement.textContent = stepNames[4];
+                            setTimeout(() => {
+                                resetAnimation();
+                                startAnimation();
+                            }, 2000);
+                        }
+                        
+                    }, 1000);
+                }, 1200);
+            }, 500);
+        }
+
+        function startAnimation() {
+            resetAnimation();
+            setTimeout(() => {
+                processParagraph(0);
+            }, 500);
+        }
+
+        // Start the animation when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(startAnimation, 1000);
+        });
+    </script>
+</body>
+</html>

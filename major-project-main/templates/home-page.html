@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1" name="viewport"/>
+  <title>Kanglish Summarizer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r77/three.min.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" />
+  <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.12.2/dist/ffmpeg.min.js"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v={{ range(1000, 9999) | random }}">
+</head>
+<body>
+  <div id="particles-container"></div>
+  <div id="main-container">
+    <header id="site-header">
+      <div id="header-content">
+        <div id="logo-section">
+          <img alt="Icon showing a dollar sign and letter A in white on a purple rounded square background" height="20" src="https://storage.googleapis.com/a1aa/image/67127c3f-1b5f-45a8-005c-21c6ab3f7523.jpg" width="20"/>
+        </div>
+        <h1 id="site-title">
+          <span id="kannada-title">ಕಂಗ್ಲಿಷ್ ಸಾರಾಂಶಕ</span><br>
+          <span id="english-title">Kanglish Summarizer</span>
+        </h1>
+      </div>
+      <nav id="main-nav">
+        <a href="#">Home</a>
+        <a href="#">Help</a>
+      </nav>
+    </header>
+    <main id="main-content">
+
+      <section class="welcome-section">
+        <div class="welcome-container">
+          <div class="welcome-content">
+            <h2 class="kannada-heading">ಸ್ವಾಗತ! <span>Welcome!</span></h2>
+            <p class="welcome-intro">
+              Kanglish Summarizer helps you transform mixed Kannada-English audio into clear, concise summaries.
+              Whether you're processing meetings, lectures, or interviews, our AI technology understands the
+              nuances of code-mixing in Karnataka's everyday language.
+            </p>
+            <div class="welcome-features">
+              <div class="feature">
+                <div class="feature-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M2 12h5l2 5 2-10 2 5h5"></path>
+                    <path d="M19 6a2 2 0 1 1 0 4 2 2 0 0 1 0-4"></path>
+                    <path d="M5 6a2 2 0 1 1 0 4 2 2 0 0 1 0-4"></path>
+                  </svg>
+                </div>
+                <span>Accurate Speech Recognition</span>
+              </div>
+              <div class="feature">
+                <div class="feature-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                    <rect x="3" y="6" width="18" height="16" rx="2"></rect>
+                    <path d="M8 14h.01"></path>
+                    <path d="M12 14h.01"></path>
+                    <path d="M16 14h.01"></path>
+                    <path d="M8 18h.01"></path>
+                    <path d="M12 18h.01"></path>
+                    <path d="M16 18h.01"></path>
+                  </svg>
+                </div>
+                <span>Fast Processing</span>
+              </div>
+              <div class="feature">
+                <div class="feature-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"></path>
+                    <path d="M12 12v9"></path>
+                    <path d="m8 17 4 4 4-4"></path>
+                  </svg>
+                </div>
+                <span>Easy Downloads</span>
+              </div>
+            </div>
+          </div>
+          <div class="mascot-container">
+            <img src="/static/mascot.svg" alt="Kanglish AI Assistant Mascot" class="mascot-image">
+          </div>
+        </div>
+      </section>
+
+      <div id="action-buttons">
+        <button id="uploadBtn" type="button">
+          <div>
+            <img alt="Icon of a photo image in white on a semi-transparent purple square background" height="28" src="https://storage.googleapis.com/a1aa/image/24532dc2-bfcc-4ae8-380a-7031c90ee63e.jpg" width="28"/>
+          </div>
+          <span>
+            <span>(ಧ್ವನಿ/ವೀಡಿಯೊ ಅಪ್ಲೋಡ್ ಮಾಡಿ)</span><br>
+            Upload Audio/Video
+          </span>
+        </button>
+        <button id="youtubeBtn" type="button">
+          <div>
+            <img alt="Icon of a play button in white on a semi-transparent purple square background" height="28" src="https://storage.googleapis.com/a1aa/image/192d44df-ca95-4a8e-0e1f-028cc5d9fde4.jpg" width="28"/>
+          </div>
+          <span>
+            <span>(YouTube ಲಿಂಕ್ ಅಂಟಿಸಿ)</span><br>
+            Paste YouTube URL
+          </span>
+        </button>
+        <button id="textBtn" type="button">
+          <div>
+            <img alt="Icon of a document page in white on a semi-transparent purple square background" height="28" src="https://storage.googleapis.com/a1aa/image/9c5047ec-704b-4860-3650-42116ec5d5c6.jpg" width="28"/>
+          </div>
+          <span>
+            <span>(ಪಠ್ಯವನ್ನು ಅಂಟಿಸಿ)</span><br>
+            Paste Text
+          </span>
+        </button>
+      </div>
+      <div id="inputContainer">
+        <div id="fileUploadSection">
+          <div id="dropArea">
+            <div>
+              <i class="fas fa-cloud-upload-alt"></i>
+              <p>
+                <span>(ಧ್ವನಿ/ವೀಡಿಯೊ ಫೈಲ್ಗಳನ್ನು ಇಲ್ಲಿ ಎಳೆದು ಬಿಡಿ)</span><br>
+                Drag & Drop Audio/Video Files Here
+              </p>
+              <p>(or) ಅಥವಾ</p>
+              <button onclick="document.getElementById('fileInput').click()">
+                <i class="fas fa-upload"></i> <span>(ಫೈಲ್ಗಳನ್ನು ಹುಡುಕಿ)</span><br>Browse Files
+              </button>
+            </div>
+            <input type="file" id="fileInput" accept="audio/*,video/*">
+          </div>
+          <div id="fileNameDisplay"></div>
+        </div>
+
+        <!-- YouTube Section - Make this visible by default -->
+  <div id="youtubeSection" class="p-6">
+    <textarea id="youtubeUrl" class="w-full p-3 border border-white/30 rounded-lg mb-4 bg-white/5 text-white placeholder-white/50" placeholder="https://www.youtube.com/watch?v=..."></textarea>
+    <button onclick="navigator.clipboard.readText().then(text => document.getElementById('youtubeUrl').value = text)" class="w-full py-2 px-4 bg-white/10 text-white rounded-lg hover:bg-white/20 transition">
+      <i class="fas fa-paste mr-2"></i> Paste from Clipboard
+    </button>
+  </div>
+
+        <!-- Text Section -->
+  <div id="textSection" class="hidden p-6">
+    <textarea id="textInput" class="w-full h-40 p-3 border border-white/30 rounded-lg mb-4 bg-white/5 text-white placeholder-white/50" placeholder="Paste your text here..."></textarea>
+    <button onclick="navigator.clipboard.readText().then(text => document.getElementById('textInput').value = text)" class="w-full py-2 px-4 bg-white/10 text-white rounded-lg hover:bg-white/20 transition">
+      <i class="fas fa-paste mr-2"></i> Paste from Clipboard
+    </button>
+  </div>
+</div>
+      <button id="summarizeBtn" type="button" disabled>
+        <span></span>
+        <i class="fas fa-chevron-right"></i>
+        <span>(ಸಾರಾಂಶವನ್ನು ಪ್ರಾರಂಭಿಸಿ)</span>
+        Start Summarization
+      </button>
+    </main>
+    <div id="features-section">
+      <h3>
+        <span>ನಮ್ಮ ವೈಶಿಷ್ಟ್ಯಗಳು</span><br>
+        <span>(Our Features)</span>
+      </h3>
+      <div id="features-grid">
+        <div>
+          <div>
+            <i class="fas fa-language"></i>
+          </div>
+          <h4>
+            <span>(ಬಹುಭಾಷಾ ಬೆಂಬಲ)</span><br>
+            Multilingual Support
+          </h4>
+          <p>
+            ಕನ್ನಡ, ಇಂಗ್ಲಿಷ್ ಮತ್ತು ಕಂಗ್ಲಿಷ್ ಪಠ್ಯಗಳನ್ನು ಸಂಸ್ಕರಿಸಿ.<br>
+            (Process Kannada, English and Kanglish texts.)
+          </p>
+        </div>
+        <div>
+          <div>
+            <i class="fas fa-bolt"></i>
+          </div>
+          <h4>
+            <span>(ತ್ವರಿತ ಸಂಸ್ಕರಣೆ)</span><br>
+            Fast Processing
+          </h4>
+          <p>
+            ಸೆಕೆಂಡುಗಳಲ್ಲಿ ಸಾರಾಂಶ ಮತ್ತು ಭಾಷಾಂತರ.<br>
+            (Summarize and translate in seconds.)
+          </p>
+        </div>
+        <div>
+          <div>
+            <i class="fas fa-robot"></i>
+          </div>
+          <h4>
+            <span>(ಆಧುನಿಕ ತಂತ್ರಜ್ಞಾನ)</span><br>
+            Advanced AI
+          </h4>
+          <p>
+            ಕಂಗ್ಲಿಷ್ ಅರ್ಥಮಾಡಿಕೊಳ್ಳುವ ಸಾಮರ್ಥ್ಯದೊಂದಿಗೆ.<br>
+            (With Kanglish understanding capability.)
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div id="faq-section">
+      <h3>
+        <span>ಸಾಮಾನ್ಯ ಪ್ರಶ್ನೆಗಳು</span><br>
+        <span>(Frequently Asked Questions)</span>
+      </h3>
+      <div id="faq-container">
+        <div class="faq-item">
+          <h4>
+            <span>
+              <span>(ಯಾವ ಭಾಷೆಗಳನ್ನು ಬೆಂಬಲಿಸುತ್ತದೆ?)</span><br>
+              What languages are supported?
+            </span>
+            <i class="fas fa-chevron-down"></i>
+          </h4>
+          <p class="hidden">
+            ನಾವು ಕನ್ನಡ, ಇಂಗ್ಲಿಿಷ್ ಮತ್ತು ಕಂಗ್ಲಿಿಷ್ ಪಠ್ಯಗಳನ್ನು ಬೆಂಬಲಿಸುತ್ತೇವೆ. ಭವಿಷ್ಯದಲ್ಲಿ ಹೆಚ್ಚು ಭಾಷೆಗಳನ್ನು ಸೇರಿಸಲು  ಯೋಜಿಸಿದ್ದೇವೆ.
+          </p>
+        </div>
+        <div class="faq-item">
+          <h4>
+            <span>
+              <span>(ಫೈಲ್ ಗಾಾತ್ರದ ಮಿತಿ ಎಷ್ಟು?)</span><br>
+              What's the file size limit?
+            </span>
+            <i class="fas fa-chevron-down"></i>
+          </h4>
+          <p class="hidden">
+            ಪ್ರಸ್ತುತ ನಾವು 50MB ವರೆಗಿನ ಧ್ವನಿ/ವೀಡಿಯೊ  ಫೈಲ್ಗಳನ್ನು ಬೆಂಬಲಿಸುತ್ತೇವೆ. ದೊಡ್್ಡ  ಫೈಲ್ಗಳಿಗೆ YouTube  ಲಿಂಕ್ ಬಳಸಲು ಸಲಹೆ ನೀಡುತ್ತೇವೆ.
+          </p>
+        </div>
+        <div class="faq-item">
+          <h4>
+            <span>
+              <span>(ಫಲಿತಾಾಂಶಗಳನ್ನು ಹೇಗೆ  ಡೌನ್ಲೋಡ್ ಮಾಡುವುದು?)</span><br>
+              How to download results?
+            </span>
+            <i class="fas fa-chevron-down"></i>
+          </h4>
+          <p class="hidden">
+            ಫಲಿತಾಂಶ ಪುಟದಲ್ಲಿ PDF ಅಥವಾ TXT ರೂಪದಲ್ಲಿ ಡೌನ್ಲೋಡ್ ಮಾಡಲು ಆಯ್್ಕೆಗಳಿಿವೆ. ನೀವು ನೋಟ್ಗಳನ್ನು ಸಹ ಸೇವ್ ಮಾಡಬಹುದು.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <footer id="site-footer">
+  <div class="footer-content">
+    <!-- Karnataka Pride Section -->
+    <div class="karnataka-pride">
+      <h4>
+        <span>ಕರ್ನಾಟಕದ ಹೆಮ್ಮೆ</span><br>
+        <span>Pride of Karnataka</span>
+      </h4>
+      <p>
+        "ಕಂಗ್ಲಿಷ್ ಸಾರಾಂಶಕ - ಭಾಷೆಗಳ ಸೇತುವೆ"<br>
+        "Bridging Languages, Connecting Cultures"
+      </p>
+    </div>
+
+    <!-- Footer Links -->
+    <div class="footer-links">
+      <div>
+        <i class="far fa-clock"></i>
+        <span>ಗೌಪ್ಯತೆ (Privacy)</span>
+      </div>
+      <div>
+        <i class="fas fa-scroll"></i>
+        <span>ನಿಯಮಗಳು (Terms)</span>
+      </div>
+      <div>
+        <i class="fas fa-info-circle"></i>
+        <span>ಸಂಪರ್ಕಿಸಿ (Contact)</span>
+      </div>
+      <div>
+        <i class="fas fa-heart"></i>
+        <span>ಬೆಂಬಲ (Support)</span>
+      </div>
+    </div>
+
+    <!-- Copyright Section -->
+    <div class="footer-copyright">
+      <p>
+        © 2025 ಕಂಗ್ಲಿಷ್ ಸಾರಾಂಶಕ (Kanglish Summarizer)<br>
+        Made with ❤️ for Karnataka | ಕರ್ನಾಟಕಕ್ಕಾಗಿ ಪ್ರೀತಿಯಿಂದ ತಯಾರಿಸಲಾಗಿದೆ
+      </p>
+    </div>
+  </div>
+</footer>
+
+  </div>
+
+  <div id="processingModal" class="hidden">
+    <div id="modal-content">
+      <div id="modal-header">
+        <h3>
+          <span id="currentStep">Processing</span>
+          <span id="progressDots">...</span>
+        </h3>
+        <button onclick="document.getElementById('processingModal').classList.add('hidden')">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div id="modal-body">
+        <iframe id="processFrame"></iframe>
+      </div>
+      <div id="modal-footer">
+        <div>
+          <span id="stepProgress">Step 1 of 3</span>
+        </div>
+        <div id="step-indicators">
+          <div class="step-indicator" data-step="1"></div>
+          <div class="step-indicator" data-step="2"></div>
+          <div class="step-indicator" data-step="3"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+ <script>
+// Animate progress dots
+function animateDots() {
+  const dots = document.getElementById('progressDots');
+  let count = 0;
+  return setInterval(() => {
+    dots.textContent = '.'.repeat((count % 3) + 1);
+    count++;
+  }, 500);
+}
+
+// Create floating particles
+document.addEventListener('DOMContentLoaded', () => {
+  const container = document.getElementById('particles-container');
+  const particleCount = 30;
+  
+  for (let i = 0; i < particleCount; i++) {
+    const particle = document.createElement('div');
+    particle.classList.add('particle');
+    
+    const size = Math.random() * 6 + 2;
+    particle.style.width = `${size}px`;
+    particle.style.height = `${size}px`;
+    
+    particle.style.left = `${Math.random() * 100}vw`;
+    particle.style.top = `${Math.random() * 100}vh`;
+    
+    particle.style.animationDuration = `${Math.random() * 10 + 10}s`;
+    particle.style.animationDelay = `${Math.random() * 5}s`;
+    
+    container.appendChild(particle);
+  }
+  
+  // Initialize sections and validation
+  initializeSections();
+  updateButtonState();
+});
+
+// Initialize section visibility
+function initializeSections() {
+  // Show file upload by default
+  document.getElementById('fileUploadSection').classList.remove('hidden');
+  document.getElementById('youtubeSection').classList.add('hidden');
+  document.getElementById('textSection').classList.add('hidden');
+}
+
+// Updated YouTube URL validation - ONLY supports full URLs
+function isValidYouTubeUrl(url) {
+  if (!url || typeof url !== 'string') return false;
+  
+  // STRICT pattern - ONLY matches https://www.youtube.com/watch?v=VIDEO_ID
+  const pattern = /^https:\/\/www\.youtube\.com\/watch\?v=[\w-]{11}$/;
+  
+  return pattern.test(url.trim());
+}
+
+// Enhanced validation function
+function validateInput() {
+  const fileUploaded = document.getElementById('fileInput').files.length > 0;
+  
+  const youtubeUrlElement = document.getElementById('youtubeUrl');
+  const youtubeUrl = youtubeUrlElement ? youtubeUrlElement.value.trim() : '';
+  
+  const textInputElement = document.getElementById('textInput');
+  const textInput = textInputElement ? textInputElement.value.trim() : '';
+  
+  console.log('Validation check:', {
+    fileUploaded,
+    youtubeUrl,
+    isValidYouTube: isValidYouTubeUrl(youtubeUrl),
+    textInputLength: textInput.length
+  });
+  
+  return fileUploaded || 
+         isValidYouTubeUrl(youtubeUrl) || 
+         textInput.length > 0;
+}
+
+
+// Update button state with visual feedback
+function updateButtonState() {
+  const summarizeBtn = document.getElementById('summarizeBtn');
+  const isValid = validateInput();
+  
+  summarizeBtn.disabled = !isValid;
+  
+  if (isValid) {
+    summarizeBtn.style.opacity = '1';
+    summarizeBtn.style.cursor = 'pointer';
+    summarizeBtn.classList.remove('opacity-50');
+  } else {
+    summarizeBtn.style.opacity = '0.5';
+    summarizeBtn.style.cursor = 'not-allowed';
+    summarizeBtn.classList.add('opacity-50');
+  }
+  
+  console.log('Button state updated:', isValid ? 'enabled' : 'disabled');
+}
+
+// Section switching with validation update
+document.getElementById('uploadBtn').addEventListener('click', () => {
+  document.getElementById('fileUploadSection').classList.remove('hidden');
+  document.getElementById('youtubeSection').classList.add('hidden');
+  document.getElementById('textSection').classList.add('hidden');
+  updateButtonState();
+});
+
+document.getElementById('youtubeBtn').addEventListener('click', () => {
+  document.getElementById('fileUploadSection').classList.add('hidden');
+  document.getElementById('youtubeSection').classList.remove('hidden');
+  document.getElementById('textSection').classList.add('hidden');
+  
+  // Focus on YouTube input for immediate typing
+  setTimeout(() => {
+    document.getElementById('youtubeUrl').focus();
+  }, 100);
+  
+  updateButtonState();
+});
+
+document.getElementById('textBtn').addEventListener('click', () => {
+  document.getElementById('fileUploadSection').classList.add('hidden');
+  document.getElementById('youtubeSection').classList.add('hidden');
+  document.getElementById('textSection').classList.remove('hidden');
+  
+  // Focus on text input for immediate typing
+  setTimeout(() => {
+    document.getElementById('textInput').focus();
+  }, 100);
+  
+  updateButtonState();
+});
+
+// File input handling
+document.getElementById('fileInput').addEventListener('change', (e) => {
+  const fileName = e.target.files[0]?.name || 'No file selected';
+  document.getElementById('fileNameDisplay').textContent = `Selected: ${fileName}`;
+  updateButtonState();
+});
+
+// Enhanced YouTube URL input handling
+const youtubeUrlInput = document.getElementById('youtubeUrl');
+if (youtubeUrlInput) {
+  // Handle all input events
+  ['input', 'change', 'keyup', 'paste'].forEach(eventType => {
+    youtubeUrlInput.addEventListener(eventType, (e) => {
+      // Add small delay for paste events to ensure content is processed
+      setTimeout(() => {
+        const url = e.target.value.trim();
+        console.log('YouTube URL input:', url);
+        updateButtonState();
+      }, eventType === 'paste' ? 100 : 0);
+    });
+  });
+}
+
+// Enhanced text input handling
+const textInput = document.getElementById('textInput');
+if (textInput) {
+  ['input', 'change', 'keyup', 'paste'].forEach(eventType => {
+    textInput.addEventListener(eventType, (e) => {
+      setTimeout(() => {
+        const text = e.target.value.trim();
+        console.log('Text input length:', text.length);
+        updateButtonState();
+      }, eventType === 'paste' ? 100 : 0);
+    });
+  });
+}
+
+// Clipboard paste helper functions
+async function pasteFromClipboard(targetElement) {
+  try {
+    const text = await navigator.clipboard.readText();
+    targetElement.value = text;
+    targetElement.dispatchEvent(new Event('input', { bubbles: true }));
+    updateButtonState();
+    return text;
+  } catch (err) {
+    console.log('Clipboard access failed, using fallback');
+    return null;
+  }
+}
+
+// Update paste button handlers with validation
+document.addEventListener('click', async (e) => {
+  if (e.target.textContent.includes('Paste from Clipboard')) {
+    e.preventDefault();
+    
+    if (e.target.closest('#youtubeSection')) {
+      const input = document.getElementById('youtubeUrl');
+      await pasteFromClipboard(input);
+    } else if (e.target.closest('#textSection')) {
+      const input = document.getElementById('textInput');
+      await pasteFromClipboard(input);
+    }
+  }
+});
+
+// Drag and drop functionality
+const dropArea = document.getElementById('dropArea');
+const fileInput = document.getElementById('fileInput');
+
+if (dropArea && fileInput) {
+  ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    dropArea.addEventListener(eventName, preventDefaults, false);
+  });
+
+  function preventDefaults(e) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+
+  ['dragenter', 'dragover'].forEach(eventName => {
+    dropArea.addEventListener(eventName, highlight, false);
+  });
+
+  ['dragleave', 'drop'].forEach(eventName => {
+    dropArea.addEventListener(eventName, unhighlight, false);
+  });
+
+  function highlight() {
+    dropArea.classList.add('highlight');
+  }
+
+  function unhighlight() {
+    dropArea.classList.remove('highlight');
+  }
+
+  dropArea.addEventListener('drop', handleDrop, false);
+
+  function handleDrop(e) {
+    const dt = e.dataTransfer;
+    const files = dt.files;
+    fileInput.files = files;
+    handleFiles(files);
+  }
+
+  fileInput.addEventListener('change', function() {
+    handleFiles(this.files);
+  });
+
+  function handleFiles(files) {
+    if (files.length) {
+      document.getElementById('fileNameDisplay').textContent = `Selected: ${files[0].name}`;
+      updateButtonState();
+    }
+  }
+}
+
+// Enhanced summarization button click handler
+document.getElementById('summarizeBtn').addEventListener('click', async () => {
+  if (!validateInput()) {
+    alert('Please provide valid input: upload a file, enter a YouTube URL, or paste text.');
+    return;
+  }
+
+  const modal = document.getElementById('processingModal');
+  const iframe = document.getElementById('processFrame');
+  const currentStep = document.getElementById('currentStep');
+  const stepIndicators = document.querySelectorAll('.step-indicator');
+  
+  modal.classList.remove('hidden');
+  
+  const formData = new FormData();
+  let selectedFilename = '';
+  let selectedDuration = '';
+  let mediaType = '';
+  let inputType = '';
+  
+  if (document.getElementById('fileInput').files.length > 0) {
+    formData.append('inputType', 'file');
+    formData.append('file', document.getElementById('fileInput').files[0]);
+    selectedFilename = document.getElementById('fileInput').files[0].name;
+    mediaType = 'audio';
+    inputType = 'file';
+  } else if (document.getElementById('youtubeUrl').value.trim()) {
+    const youtubeUrl = document.getElementById('youtubeUrl').value.trim();
+    if (!isValidYouTubeUrl(youtubeUrl)) {
+      alert('Please enter a valid YouTube URL (youtube.com or youtu.be)');
+      modal.classList.add('hidden');
+      return;
+    }
+    formData.append('inputType', 'youtube');
+    formData.append('youtubeUrl', youtubeUrl);
+    selectedFilename = youtubeUrl;
+    mediaType = 'audio';
+    inputType = 'youtube';
+  } else if (document.getElementById('textInput').value.trim()) {
+    formData.append('inputType', 'text');
+    formData.append('textInput', document.getElementById('textInput').value.trim());
+    selectedFilename = '';
+    mediaType = 'text';
+    inputType = 'text';
+  }
+  
+  const dotsInterval = animateDots();
+  
+  try {
+    const response = await fetch('/process', {
+      method: 'POST',
+      body: formData
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Processing failed');
+    }
+    
+    const steps = (inputType === 'text') ? [
+      { name: 'Summarizing...', url: '/static/summary.html', id: 'summary' },
+      { name: 'Translating...', url: '/static/translationpage.html', id: 'translation' }
+    ] : [
+      { name: 'Transcribing...', url: '/static/transcription_processing.html', id: 'transcription' },
+      { name: 'Summarizing...', url: '/static/summary.html', id: 'summary' },
+      { name: 'Translating...', url: '/static/translationpage.html', id: 'translation' }
+    ];
+    
+    for (let i = 0; i < steps.length; i++) {
+      currentStep.textContent = steps[i].name;
+      document.getElementById('stepProgress').textContent = `Step ${i+1} of ${steps.length}`;
+      
+      stepIndicators.forEach((indicator, index) => {
+        indicator.classList.toggle('active', index === i);
+      });
+      
+      iframe.src = steps[i].url;
+      const stepStart = Date.now();
+      const minMs = (steps[i].id === 'summary' || steps[i].id === 'translation') ? 15000 : 0;
+      
+      while (true) {
+        const statusResponse = await fetch(`/status/${steps[i].id}`);
+        const status = await statusResponse.json();
+        
+        if (status.error) {
+          clearInterval(dotsInterval);
+          alert('Error during processing: ' + (status.result || 'See server logs'));
+          modal.classList.add('hidden');
+          throw new Error(status.result || 'Processing error');
+        }
+        
+        const elapsed = Date.now() - stepStart;
+        if (status.complete && elapsed >= minMs) break;
+        
+        if (status.progress) {
+          currentStep.textContent = steps[i].name + ' — ' + status.progress;
+        }
+        
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+    }
+    
+    clearInterval(dotsInterval);
+    
+    const params = new URLSearchParams({
+      type: mediaType || 'audio',
+      filename: selectedFilename || '',
+      duration: selectedDuration || ''
+    });
+    
+    window.location.href = '/result?' + params.toString();
+    
+  } catch (error) {
+    clearInterval(dotsInterval);
+    console.error('Processing failed:', error);
+    alert('Processing failed: ' + error.message);
+    modal.classList.add('hidden');
+  }
+});
+
+// FAQ toggle functionality
+document.querySelectorAll('.faq-item h4').forEach(header => {
+  header.addEventListener('click', () => {
+    const content = header.nextElementSibling;
+    const icon = header.querySelector('i');
+    content.classList.toggle('hidden');
+    icon.classList.toggle('rotate-180');
+  });
+});
+</script>
+
+</body>
+</html>

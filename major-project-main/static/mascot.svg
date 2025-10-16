@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 100" width="200" height="100">
+  <!-- English Speech Bubble (Purple) -->
+  <g transform="translate(10, 10)">
+    <path d="M0,0 L80,0 C88.8,0 96,7.2 96,16 L96,44 C96,52.8 88.8,60 80,60 L60,60 L50,80 L40,60 L16,60 C7.2,60 0,52.8 0,44 L0,16 C0,7.2 7.2,0 16,0 Z"
+          fill="#6930c3" />
+    <!-- English "A" -->
+    <text x="48" y="40" font-family="Arial, sans-serif" font-size="36" fill="white" text-anchor="middle">A</text>
+  </g>
+
+  <!-- Kannada Speech Bubble (Light Purple) -->
+  <g transform="translate(70, 30)">
+    <path d="M0,0 L80,0 C88.8,0 96,7.2 96,16 L96,44 C96,52.8 88.8,60 80,60 L60,60 L50,80 L40,60 L16,60 C7.2,60 0,52.8 0,44 L0,16 C0,7.2 7.2,0 16,0 Z"
+          fill="#9775fa" />
+    <!-- Kannada 'ಕ' character -->
+    <path d="M65,25 C65,20 60,20 60,20 C55,20 55,25 55,25 L55,40 L50,40 L50,25 C50,20 45,20 45,20 C40,20 40,25 40,25 L40,45 L65,45 L65,25 Z"
+          fill="white" />
+    <!-- Connectivity line for Kannada character -->
+    <path d="M45,35 L60,35" stroke="white" stroke-width="2" fill="none" />
+  </g>
+
+  <!-- Circular AI element with futuristic pattern -->
+  <g transform="translate(100, 45)">
+    <circle cx="0" cy="0" r="20" fill="#80ffdb" fill-opacity="0.7" />
+    <!-- Sound wave pattern lines -->
+    <path d="M-15,0 L15,0 M-10,-10 L10,10 M-10,10 L10,-10"
+          stroke="#6930c3" stroke-width="2" stroke-linecap="round" />
+    <!-- Network nodes -->
+    <circle cx="-10" cy="-10" r="2" fill="#6930c3" />
+    <circle cx="10" cy="10" r="2" fill="#6930c3" />
+    <circle cx="-10" cy="10" r="2" fill="#6930c3" />
+    <circle cx="10" cy="-10" r="2" fill="#6930c3" />
+  </g>
+</svg>

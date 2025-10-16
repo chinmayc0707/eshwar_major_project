@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Processing Audio Transcription</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .container {
+            text-align: center;
+            color: white;
+            z-index: 10;
+            position: relative;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #ffffff, #e0e7ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .processing-text {
+            font-size: 1.5rem;
+            font-weight: 500;
+            margin-bottom: 3rem;
+            opacity: 0.9;
+        }
+
+        .audio-visualizer {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            height: 200px;
+            margin: 0 auto 3rem auto;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            overflow: hidden;
+        }
+
+        .frequency-bars {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            height: 100%;
+            gap: 4px;
+        }
+
+        .bar {
+            width: 4px;
+            background: linear-gradient(to top, #4f46e5, #06b6d4, #10b981);
+            border-radius: 2px;
+            animation: pulse 2s ease-in-out infinite;
+            transform-origin: bottom;
+        }
+
+        .bar:nth-child(odd) {
+            animation-delay: 0.1s;
+        }
+
+        .bar:nth-child(even) {
+            animation-delay: 0.3s;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                height: 20px;
+                opacity: 0.6;
+            }
+            25% {
+                height: 80px;
+                opacity: 1;
+            }
+            50% {
+                height: 120px;
+                opacity: 0.8;
+            }
+            75% {
+                height: 60px;
+                opacity: 1;
+            }
+        }
+
+        .text-conversion {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .floating-text {
+            position: absolute;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.8);
+            animation: floatText 10s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
+            white-space: nowrap;
+            transform: translateX(-200px);
+        }
+
+        @keyframes floatText {
+            0% {
+                transform: translateX(-200px);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateX(calc(100vw + 200px));
+                opacity: 0;
+            }
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin-bottom: 2rem;
+        }
+
+        .spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .progress-bar {
+            width: 100%;
+            max-width: 400px;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 0 auto;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4f46e5, #06b6d4);
+            border-radius: 4px;
+            animation: progress 3s ease-in-out infinite;
+        }
+
+        @keyframes progress {
+            0% { width: 0%; }
+            50% { width: 75%; }
+            100% { width: 95%; }
+        }
+
+        .background-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .wave {
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 30px 30px;
+            animation: wave 20s linear infinite;
+        }
+
+        @keyframes wave {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            font-weight: 400;
+            opacity: 0.7;
+            margin-top: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .logo {
+                font-size: 2rem;
+            }
+            
+            .processing-text {
+                font-size: 1.2rem;
+            }
+            
+            .audio-visualizer {
+                max-width: 90%;
+                height: 150px;
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-animation">
+        <div class="wave"></div>
+    </div>
+
+    <div class="container">
+        <div class="logo">TranscribeAI</div>
+        <div class="processing-text">Converting your audio to text</div>
+        
+        <div class="audio-visualizer">
+            <div class="frequency-bars" id="frequencyBars"></div>
+            <div class="text-conversion" id="textConversion"></div>
+        </div>
+
+        <div class="status">
+            <div class="spinner"></div>
+            <span>Processing audio...</span>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill"></div>
+        </div>
+
+        <div class="subtitle">Please wait while we analyze your audio file</div>
+    </div>
+
+    <script>
+        // Generate frequency bars
+        function createFrequencyBars() {
+            const container = document.getElementById('frequencyBars');
+            const barCount = 60;
+            
+            for (let i = 0; i < barCount; i++) {
+                const bar = document.createElement('div');
+                bar.className = 'bar';
+                bar.style.animationDelay = `${Math.random() * 2}s`;
+                bar.style.animationDuration = `${1.5 + Math.random() * 1}s`;
+                container.appendChild(bar);
+            }
+        }
+
+        // Generate floating text
+        function createFloatingText() {
+            const container = document.getElementById('textConversion');
+            const words = [
+                'Welcome to...', 'Processing your audio...', 'Analyzing speech...',
+                'Extracting text...', 'Transcribing audio...',
+                'Audio processing...', 'Converting speech...', 'Analyzing frequencies...',
+                'Recognizing patterns...', 'Generating text...', 'Almost done...'
+            ];
+            
+            function addFloatingText() {
+                const text = document.createElement('div');
+                text.className = 'floating-text';
+                text.textContent = words[Math.floor(Math.random() * words.length)];
+                text.style.top = `${20 + Math.random() * 60}%`;
+                text.style.animationDuration = `${8 + Math.random() * 4}s`;
+                text.style.animationDelay = `${Math.random() * 1}s`;
+                
+                container.appendChild(text);
+                
+                setTimeout(() => {
+                    if (text.parentNode) {
+                        text.parentNode.removeChild(text);
+                    }
+                }, 12000);
+            }
+            
+            // Add initial texts
+            for (let i = 0; i < 3; i++) {
+                setTimeout(addFloatingText, i * 1000);
+            }
+            
+            // Continue adding texts
+            setInterval(addFloatingText, 2500);
+        }
+
+        // Initialize animations
+        window.addEventListener('DOMContentLoaded', () => {
+            createFrequencyBars();
+            setTimeout(createFloatingText, 500);
+        });
+    </script>
+</body>
+</html>
