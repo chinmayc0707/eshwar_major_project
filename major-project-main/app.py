@@ -280,7 +280,7 @@ def create_app():
                         }
                         time.sleep(2)  # Simulate processing time
                         
-                        english_sum = create_summary(text_input)
+                        english_sum = summarize_openrouter(text_input)
                         processing_status['summary'] = {
                             'complete': True, 
                             'result': english_sum, 
