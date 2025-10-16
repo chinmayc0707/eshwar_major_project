@@ -20,6 +20,3 @@ def summarize_openrouter(text: str,
     ]
     resp = client.chat.completions.create(model=model, messages=messages)
     return resp.choices[0].message.content.strip()
-
-
-print(summarize_openrouter("OpenRouter is an open-source platform that provides access to various large language models (LLMs) through a unified API. It allows developers to easily integrate and utilize different LLMs in their applications without needing to manage multiple APIs or services. OpenRouter supports models from various providers, enabling users to choose the best model for their specific use cases. The platform aims to simplify the process of working with LLMs and promote the adoption of AI technologies across different industries."))
